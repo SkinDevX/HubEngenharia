@@ -6,132 +6,185 @@ const live = DISCIPLINES.filter((d) => d.status === 'live').length;
 ---
 
 <Base
-  title="Engenharia·Hub — escolha o seu caminho"
-  description="Hub de Conhecimento de Engenharia. Trilhas visuais e interativas por disciplina: Elétrica, Eletrônica, Civil, Segurança e mais."
+  title="Engenharia·Hub — painel de engenharias"
+  description="Painel de Conhecimento de Engenharia. Trilhas visuais e interativas por disciplina: Elétrica, Eletrônica, Civil, Segurança e mais."
 >
   <div class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="/">
         <span class="dot" aria-hidden="true"></span>
-        <span>ENGENHARIA·HUB<small>hub de conhecimento</small></span>
+        <span>ENGENHARIA·HUB<small>painel de conhecimento</small></span>
       </a>
       <div class="right">
-        <span class="prog-num">{live} de {DISCIPLINES.length} trilhas no ar</span>
+        <span class="sys-status"><span class="led-mini" aria-hidden="true"></span> SYS ONLINE</span>
+        <span class="prog-num">{live}/{DISCIPLINES.length} ativas</span>
         <button class="theme-btn" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">tema</button>
       </div>
     </div>
   </div>
 
   <header class="home-hero">
-    <div class="grid-bg" aria-hidden="true"></div>
+    <div class="grid-bg" aria-hidden="true"><div class="scan"></div></div>
     <div class="wrap">
-      <p class="eyebrow">Hub de Conhecimento de Engenharia</p>
-      <h1>Escolha o seu <span class="g">caminho.</span></h1>
+      <p class="eyebrow">// sistema de aprendizado em engenharia</p>
+      <h1>Painel de <span class="g">Engenharias.</span></h1>
       <p class="lede">
-        Cada engenharia é uma trilha: o melhor material de estudo transformado em jornada visual —
-        com aplicações do mundo real, mapa de pré-requisitos, ilustrações interativas e desafios.
-        Comece por onde a sua curiosidade puxar.
+        Selecione uma área para entrar. Cada engenharia é uma trilha viva — o melhor material de
+        estudo transformado em jornada visual, com aplicações reais, ilustrações interativas e desafios.
       </p>
+      <div class="hero-line" aria-hidden="true">
+        <span>{DISCIPLINES.length} áreas mapeadas</span>
+        <span class="sep">·</span>
+        <span>{live} trilha ativa</span>
+        <span class="sep">·</span>
+        <span>expansão contínua</span>
+      </div>
     </div>
   </header>
 
   <main class="block">
     <div class="wrap">
-      <div class="disc-grid">
-        {DISCIPLINES.map((d) => {
+      <div class="panel-grid">
+        {DISCIPLINES.map((d, i) => {
+          const sys = `SYS-${String(i + 1).padStart(2, '0')}`;
           const inner = (
             <>
-              <div class="disc-top">
-                <span class="disc-icon" set:html={`<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">${ICONS[d.icon]}</svg>`}></span>
-                {d.status === 'live'
-                  ? <span class="disc-badge on">no ar</span>
-                  : <span class="disc-badge soon">em breve</span>}
+              <span class="corner tl" aria-hidden="true"></span>
+              <span class="corner br" aria-hidden="true"></span>
+
+              <div class="p-head">
+                <span class="p-code">{sys} · {d.code}</span>
+                <span class={`p-status ${d.status}`}>
+                  <span class="led" aria-hidden="true"></span>
+                  {d.status === 'live' ? 'ONLINE' : 'STANDBY'}
+                </span>
               </div>
-              <h2 class="disc-name">{d.name}</h2>
-              <p class="disc-tag">{d.tag}</p>
+
+              <div class="p-icon" set:html={`<svg viewBox="0 0 32 32" width="38" height="38" aria-hidden="true">${ICONS[d.icon]}</svg>`}></div>
+
+              <h2 class="p-name">{d.name}</h2>
+              <p class="p-tag">{d.tag}</p>
+
               {d.status === 'live' && d.progressTotal ? (
-                <div class="disc-prog" data-key={d.progressKey} data-total={d.progressTotal}>
-                  <div class="disc-prog-bar"><span></span></div>
-                  <span class="disc-prog-num">0/{d.progressTotal}</span>
+                <div class="p-prog" data-key={d.progressKey} data-total={d.progressTotal}>
+                  <div class="segs">
+                    {Array.from({ length: d.progressTotal }).map(() => <span class="seg"></span>)}
+                  </div>
+                  <span class="p-prog-num">00/{d.progressTotal}</span>
                 </div>
-              ) : null}
-              <div class="disc-foot">
-                <span class="disc-meta">{d.meta}</span>
-                {d.status === 'live' ? <span class="disc-go">entrar →</span> : null}
+              ) : (
+                <div class="p-prog placeholder"><span class="p-standby">módulo em desenvolvimento</span></div>
+              )}
+
+              <div class="p-foot">
+                <span class="p-meta">{d.meta}</span>
+                <span class="p-go">{d.status === 'live' ? 'acessar →' : 'aguarde'}</span>
               </div>
             </>
           );
           return d.href
-            ? <a class="disc-card live" href={d.href} style={`--acc: ${d.accent}`} aria-label={`Entrar em ${d.name}`}>{inner}</a>
-            : <div class="disc-card soon" style={`--acc: ${d.accent}`} aria-disabled="true">{inner}</div>;
+            ? <a class="panel live" href={d.href} style={`--acc: ${d.accent}`} aria-label={`Acessar ${d.name}`}>{inner}</a>
+            : <div class="panel soon" style={`--acc: ${d.accent}`} aria-disabled="true">{inner}</div>;
         })}
       </div>
-
-      <p class="hint">
-        As trilhas marcadas como <b>em breve</b> estão a caminho. A de <b>Engenharia Elétrica</b> já está
-        completa em estrutura — 16 capítulos, com o primeiro totalmente interativo.
-      </p>
     </div>
   </main>
 
   <footer class="foot">
     <div class="wrap">
       <span>Engenharia·Hub — feito para quem está começando.</span>
-      <span class="mono">hub · v1</span>
+      <span class="mono">painel · v1</span>
     </div>
   </footer>
 
   <style is:global>
-    .home-hero { position: relative; padding: clamp(56px, 12vw, 128px) 0 clamp(30px, 6vw, 56px); overflow: hidden; }
-    .grid-bg { position: absolute; inset: 0; z-index: 0;
+    .sys-status { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: .12em; color: var(--text-dim); }
+    .led-mini { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); animation: blink 2.4s ease-in-out infinite; }
+
+    .home-hero { position: relative; padding: clamp(52px, 11vw, 116px) 0 clamp(28px, 6vw, 52px); overflow: hidden; }
+    .grid-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden;
       background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-      background-size: 46px 46px; mask-image: radial-gradient(120% 90% at 20% 0%, #000 40%, transparent 78%);
-      -webkit-mask-image: radial-gradient(120% 90% at 20% 0%, #000 40%, transparent 78%); }
+      background-size: 42px 42px;
+      mask-image: radial-gradient(130% 100% at 15% -10%, #000 42%, transparent 80%);
+      -webkit-mask-image: radial-gradient(130% 100% at 15% -10%, #000 42%, transparent 80%); }
+    .scan { position: absolute; left: 0; right: 0; height: 42%; top: 0;
+      background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--trace-1), transparent 90%) 55%, transparent);
+      animation: scan 7s linear infinite; }
     .home-hero .wrap { position: relative; z-index: 1; }
-    .home-hero h1 { font-size: clamp(2.6rem, 8vw, 5rem); line-height: 1; letter-spacing: -0.035em; font-weight: 700; margin: 18px 0 0; text-wrap: balance; }
+    .home-hero .eyebrow { color: var(--trace-1); }
+    .home-hero h1 { font-size: clamp(2.6rem, 8vw, 5rem); line-height: 1; letter-spacing: -0.035em; font-weight: 700; margin: 16px 0 0; text-wrap: balance; }
     .home-hero h1 .g { background: linear-gradient(100deg, var(--trace-1), var(--trace-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .home-hero .lede { margin: 22px 0 0; font-size: clamp(1.05rem, 2.2vw, 1.3rem); color: var(--text-dim); max-width: 62ch; text-wrap: pretty; }
+    .home-hero .lede { margin: 20px 0 0; font-size: clamp(1.05rem, 2.2vw, 1.28rem); color: var(--text-dim); max-width: 60ch; text-wrap: pretty; }
+    .hero-line { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: .06em; color: var(--text-faint); }
+    .hero-line .sep { opacity: .5; }
 
-    .block { padding: clamp(20px, 4vw, 40px) 0 clamp(40px, 8vw, 80px); }
-    .disc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-    .disc-card { position: relative; display: flex; flex-direction: column; gap: 0; background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 22px 22px 18px; text-decoration: none; color: inherit; overflow: hidden; min-height: 210px; transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .25s, box-shadow .25s; }
-    .disc-card::before { content:""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--acc); opacity: .9; }
-    .disc-card.live { cursor: pointer; }
-    .disc-card.live:hover { transform: translateY(-4px); border-color: color-mix(in oklab, var(--acc), var(--line) 40%); box-shadow: var(--shadow); }
-    .disc-card.live:hover .disc-go { color: var(--acc); }
-    .disc-card.soon { opacity: .62; }
-    .disc-top { display: flex; align-items: center; justify-content: space-between; }
-    .disc-icon { color: var(--acc); display: inline-flex; }
-    .disc-badge { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: .14em; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; }
-    .disc-badge.on { background: var(--acc); color: #071019; font-weight: 700; }
-    .disc-badge.soon { border: 1px solid var(--line); color: var(--text-faint); }
-    .disc-name { font-size: 1.28rem; font-weight: 700; letter-spacing: -0.02em; margin: 18px 0 0; }
-    .disc-tag { color: var(--text-dim); font-size: 0.93rem; margin: 8px 0 0; flex: 1; }
-    .disc-prog { display: flex; align-items: center; gap: 10px; margin: 16px 0 0; }
-    .disc-prog-bar { flex: 1; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
-    .disc-prog-bar span { display: block; height: 100%; width: 0%; border-radius: 99px; background: var(--acc); transition: width .5s cubic-bezier(.2,.8,.2,1); }
-    .disc-prog-num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); font-variant-numeric: tabular-nums; }
-    .disc-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
-    .disc-meta { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .04em; color: var(--text-faint); }
-    .disc-go { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: .06em; color: var(--text-dim); transition: color .2s; }
-    .hint { margin: 30px 0 0; font-size: 0.88rem; color: var(--text-faint); max-width: 68ch; }
-    .hint b { color: var(--text-dim); font-weight: 600; }
+    .block { padding: clamp(18px, 3vw, 32px) 0 clamp(44px, 8vw, 84px); }
+    .panel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 900px) { .panel-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .panel-grid { grid-template-columns: 1fr; } }
 
-    @media (prefers-reduced-motion: reduce) { .disc-card.live:hover { transform: none; } .disc-prog-bar span { transition: none; } }
+    .panel { position: relative; display: flex; flex-direction: column; background: linear-gradient(160deg, color-mix(in oklab, var(--bg-2), var(--acc) 5%), var(--bg-2)); border: 1px solid var(--line); border-radius: 14px; padding: 20px 20px 16px; text-decoration: none; color: inherit; overflow: hidden; min-height: 258px; transition: transform .28s cubic-bezier(.2,.8,.2,1), border-color .28s, box-shadow .28s; }
+    .panel::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% -20%, color-mix(in oklab, var(--acc), transparent 82%), transparent 70%); opacity: 0; transition: opacity .3s; pointer-events: none; }
+    .panel .corner { position: absolute; width: 13px; height: 13px; border: 2px solid var(--acc); opacity: .45; transition: opacity .28s; }
+    .panel .corner.tl { top: 9px; left: 9px; border-right: 0; border-bottom: 0; border-top-left-radius: 3px; }
+    .panel .corner.br { bottom: 9px; right: 9px; border-left: 0; border-top: 0; border-bottom-right-radius: 3px; }
+    .panel.live { cursor: pointer; }
+    .panel.live:hover { transform: translateY(-5px); border-color: color-mix(in oklab, var(--acc), var(--line) 30%); box-shadow: 0 22px 50px -26px color-mix(in oklab, var(--acc), #000 30%); }
+    .panel.live:hover::after { opacity: 1; }
+    .panel.live:hover .corner { opacity: 1; }
+    .panel.live:hover .p-go { color: var(--acc); }
+    .panel.live:hover .p-icon { color: var(--acc); transform: translateY(-2px); }
+    .panel.soon { opacity: .6; }
+
+    .p-head { display: flex; align-items: center; justify-content: space-between; }
+    .p-code { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: .14em; color: var(--text-faint); }
+    .p-status { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: .14em; }
+    .p-status.live { color: var(--acc); }
+    .p-status.soon { color: var(--text-faint); }
+    .led { width: 8px; height: 8px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 9px var(--acc); position: relative; }
+    .p-status.live .led { animation: blink 2s ease-in-out infinite; }
+    .p-status.soon .led { background: var(--text-faint); box-shadow: none; }
+
+    .p-icon { color: var(--acc); margin: 20px 0 0; display: inline-flex; transition: transform .28s, color .28s; }
+    .panel.soon .p-icon { color: var(--text-faint); }
+    .p-name { font-size: 1.24rem; font-weight: 700; letter-spacing: -0.02em; margin: 14px 0 0; }
+    .p-tag { color: var(--text-dim); font-size: 0.9rem; margin: 7px 0 0; flex: 1; }
+
+    .p-prog { display: flex; align-items: center; gap: 10px; margin: 16px 0 0; }
+    .p-prog.placeholder { opacity: .8; }
+    .p-standby { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: .1em; color: var(--text-faint); text-transform: uppercase; }
+    .segs { display: flex; gap: 3px; flex: 1; }
+    .seg { flex: 1; height: 7px; border-radius: 2px; background: var(--line); transition: background .3s, box-shadow .3s; }
+    .seg.on { background: var(--acc); box-shadow: 0 0 7px color-mix(in oklab, var(--acc), transparent 40%); }
+    .p-prog-num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+    .p-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 13px; border-top: 1px solid var(--line-2); }
+    .p-meta { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: .04em; color: var(--text-faint); }
+    .p-go { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .08em; color: var(--text-dim); transition: color .2s; text-transform: uppercase; }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+    @keyframes scan { 0% { transform: translateY(-110%); } 100% { transform: translateY(340%); } }
+    @media (prefers-reduced-motion: reduce) {
+      .scan { display: none; }
+      .led-mini, .p-status.live .led { animation: none; }
+      .panel.live:hover { transform: none; }
+      .panel.live:hover .p-icon { transform: none; }
+    }
   </style>
 
   <script is:inline>
     (function () {
-      document.querySelectorAll(".disc-prog").forEach(function (el) {
+      document.querySelectorAll(".p-prog").forEach(function (el) {
         var key = el.getAttribute("data-key");
+        if (!key) return;
         var total = parseInt(el.getAttribute("data-total"), 10) || 1;
         var done = {};
         try { done = JSON.parse(localStorage.getItem(key) || "{}") || {}; } catch (e) {}
         var count = 0; for (var k in done) { if (done[k]) count++; }
-        var bar = el.querySelector(".disc-prog-bar span");
-        var num = el.querySelector(".disc-prog-num");
-        if (bar) bar.style.width = (count / total * 100) + "%";
-        if (num) num.textContent = count + "/" + total;
+        var segs = el.querySelectorAll(".seg");
+        for (var i = 0; i < segs.length && i < count; i++) segs[i].classList.add("on");
+        var num = el.querySelector(".p-prog-num");
+        if (num) num.textContent = String(count).padStart(2, "0") + "/" + total;
       });
     })();
   </script>

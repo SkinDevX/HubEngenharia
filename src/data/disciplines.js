@@ -5,6 +5,7 @@
 export const DISCIPLINES = [
   {
     slug: "eletrica",
+    code: "ELE",
     name: "Engenharia Elétrica",
     tag: "Circuitos, energia e sinais — a base de tudo que é eletrônico.",
     meta: "1 módulo · 16 capítulos",
@@ -17,9 +18,10 @@ export const DISCIPLINES = [
   },
   {
     slug: "eletronica",
+    code: "ELN",
     name: "Eletrônica",
     tag: "Diodos, transistores, amplificadores e o mundo digital.",
-    meta: "em breve",
+    meta: "em desenvolvimento",
     href: null,
     status: "soon",
     accent: "#F2A93B",
@@ -27,9 +29,10 @@ export const DISCIPLINES = [
   },
   {
     slug: "civil",
+    code: "CIV",
     name: "Engenharia Civil",
     tag: "Estruturas, materiais e o que mantém tudo de pé.",
-    meta: "em breve",
+    meta: "em desenvolvimento",
     href: null,
     status: "soon",
     accent: "#8FB0E0",
@@ -37,9 +40,10 @@ export const DISCIPLINES = [
   },
   {
     slug: "seguranca",
+    code: "SEG",
     name: "Engenharia de Segurança",
     tag: "Risco, proteção e a cultura de trabalhar sem acidentes.",
-    meta: "em breve",
+    meta: "em desenvolvimento",
     href: null,
     status: "soon",
     accent: "#E8B84B",
@@ -47,9 +51,10 @@ export const DISCIPLINES = [
   },
   {
     slug: "mecanica",
+    code: "MEC",
     name: "Engenharia Mecânica",
     tag: "Forças, máquinas, calor e movimento.",
-    meta: "em breve",
+    meta: "em desenvolvimento",
     href: null,
     status: "soon",
     accent: "#C79BE8",
@@ -57,9 +62,10 @@ export const DISCIPLINES = [
   },
   {
     slug: "producao",
+    code: "PRO",
     name: "Engenharia de Produção",
     tag: "Processos, qualidade e a arte de fazer mais com menos.",
-    meta: "em breve",
+    meta: "em desenvolvimento",
     href: null,
     status: "soon",
     accent: "#5FD39B",
