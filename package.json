@@ -1,0 +1,14 @@
+{
+  "name": "engenharia-hub",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Hub de Conhecimento de Engenharia — trilhas visuais de estudo. Módulo 01: Análise de Circuitos Elétricos.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.13.0"
+  }
+}

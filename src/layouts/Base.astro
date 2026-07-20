@@ -1,0 +1,24 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = "Engenharia·Hub",
+  description = "Hub de Conhecimento de Engenharia — trilhas visuais de estudo.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="light dark" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,615 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Engenharia·Hub — Circuitos"
+  description="Trilha interativa de Análise de Circuitos Elétricos em 16 capítulos — primeiro módulo do Hub de Engenharia."
+>
+<style is:global>
+  :root {
+    --bg: #0A0F1A;
+    --bg-2: #0E1524;
+    --bg-3: #131D30;
+    --panel: rgba(255,255,255,0.02);
+    --grid: rgba(120,165,205,0.07);
+    --grid-strong: rgba(120,165,205,0.13);
+    --text: #E7EEF7;
+    --text-dim: #94A6BD;
+    --text-faint: #5E6E85;
+    --line: rgba(140,175,215,0.15);
+    --line-2: rgba(140,175,215,0.09);
+    --trace-1: #37D3DB;
+    --trace-2: #F2A93B;
+    --good: #3FD495;
+    --shadow: 0 18px 50px -22px rgba(0,0,0,0.7);
+    --font-display: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Cascadia Code", ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    --maxw: 1120px;
+
+    --p1: #2FC6CB;
+    --p2: #37C089;
+    --p3: #77BE49;
+    --p4: #CBAA2C;
+    --p5: #E89A2B;
+    --p6: #EC7A3E;
+    --p7: #E8595F;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F4F1E8;
+      --bg-2: #FFFFFF;
+      --bg-3: #FBFAF3;
+      --panel: rgba(20,45,80,0.015);
+      --grid: rgba(20,55,95,0.055);
+      --grid-strong: rgba(20,55,95,0.11);
+      --text: #14202E;
+      --text-dim: #4C5C6E;
+      --text-faint: #8C9AAA;
+      --line: rgba(20,55,95,0.16);
+      --line-2: rgba(20,55,95,0.09);
+      --trace-1: #0C93A0;
+      --trace-2: #BE7412;
+      --good: #128A5A;
+      --shadow: 0 18px 44px -24px rgba(20,40,70,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0A0F1A; --bg-2: #0E1524; --bg-3: #131D30;
+    --panel: rgba(255,255,255,0.02);
+    --grid: rgba(120,165,205,0.07); --grid-strong: rgba(120,165,205,0.13);
+    --text: #E7EEF7; --text-dim: #94A6BD; --text-faint: #5E6E85;
+    --line: rgba(140,175,215,0.15); --line-2: rgba(140,175,215,0.09);
+    --trace-1: #37D3DB; --trace-2: #F2A93B; --good: #3FD495;
+    --shadow: 0 18px 50px -22px rgba(0,0,0,0.7);
+  }
+  :root[data-theme="light"] {
+    --bg: #F4F1E8; --bg-2: #FFFFFF; --bg-3: #FBFAF3;
+    --panel: rgba(20,45,80,0.015);
+    --grid: rgba(20,55,95,0.055); --grid-strong: rgba(20,55,95,0.11);
+    --text: #14202E; --text-dim: #4C5C6E; --text-faint: #8C9AAA;
+    --line: rgba(20,55,95,0.16); --line-2: rgba(20,55,95,0.09);
+    --trace-1: #0C93A0; --trace-2: #BE7412; --good: #128A5A;
+    --shadow: 0 18px 44px -24px rgba(20,40,70,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in oklab, var(--bg), transparent 12%);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line-2);
+  }
+  .topbar-inner {
+    max-width: var(--maxw); margin: 0 auto; padding: 11px 24px;
+    display: flex; align-items: center; gap: 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--trace-1); box-shadow: 0 0 10px var(--trace-1); }
+  .brand small { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.16em; color: var(--text-faint); text-transform: uppercase; display:block; margin-top: -3px; }
+  .topbar .prog { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .prog-track { width: 130px; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+  .prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--trace-1), var(--trace-2)); transition: width .5s cubic-bezier(.2,.8,.2,1); border-radius: 99px; }
+  .prog-num { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .theme-btn {
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: .1em;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--line);
+    border-radius: 7px; padding: 6px 9px; cursor: pointer; text-transform: uppercase;
+  }
+  .theme-btn:hover { color: var(--text); border-color: var(--text-faint); }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding: clamp(40px, 8vw, 96px) 0 clamp(30px,5vw,60px); }
+  .scope {
+    position: relative; border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--line);
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--bg-2), var(--trace-1) 4%), var(--bg-2));
+    box-shadow: var(--shadow);
+  }
+  .scope canvas { display: block; width: 100%; height: 320px; }
+  .scope-overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between;
+    padding: 20px 22px; pointer-events: none;
+  }
+  .scope-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .scope-badge {
+    font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-dim); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px;
+    background: color-mix(in oklab, var(--bg-2), transparent 25%);
+  }
+  .ch-tag { color: var(--trace-1); }
+  .ch-tag.amber { color: var(--trace-2); }
+  .scope-readout { font-family: var(--font-mono); font-size: 0.66rem; color: var(--text-faint); letter-spacing: .08em; }
+  h1.title {
+    font-size: clamp(2.2rem, 6.4vw, 4.4rem);
+    line-height: 1.02; letter-spacing: -0.03em; font-weight: 700;
+    margin: 26px 0 0; text-wrap: balance; max-width: 15ch;
+  }
+  h1.title .g { background: linear-gradient(100deg, var(--trace-1), var(--trace-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { margin: 20px 0 0; font-size: clamp(1.02rem, 2vw, 1.24rem); color: var(--text-dim); max-width: 62ch; text-wrap: pretty; }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 28px; }
+  .hero-meta .stat { display: flex; flex-direction: column; }
+  .hero-meta .n { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .hero-meta .l { font-size: 0.74rem; color: var(--text-faint); letter-spacing: .04em; }
+  .src-note { margin-top: 26px; font-size: 0.82rem; color: var(--text-faint); }
+  .src-note a { color: var(--text-dim); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+
+  /* ---------- Section framing ---------- */
+  section.block { padding: clamp(34px, 6vw, 68px) 0; }
+  .sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+  .sec-head h2 { font-size: clamp(1.5rem, 3.4vw, 2.2rem); letter-spacing: -0.02em; margin: 0; font-weight: 700; }
+  .sec-sub { color: var(--text-dim); max-width: 66ch; margin: 6px 0 0; }
+
+  /* ---------- Dependency rail ---------- */
+  .rail { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 30px; position: relative; }
+  .rail::before { content:""; position:absolute; top: 15px; left: 4%; right: 4%; height: 2px; background: linear-gradient(90deg, var(--p1), var(--p4), var(--p7)); opacity: .5; border-radius: 2px; }
+  .rail-node { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; position: relative; }
+  .rail-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 2px solid var(--pc); display: grid; place-items: center; font-family: var(--font-mono); font-weight: 600; font-size: .82rem; color: var(--pc); z-index: 1; box-shadow: 0 0 0 4px var(--bg); }
+  .rail-label { font-size: 0.72rem; color: var(--text-dim); line-height: 1.3; }
+  .rail-label b { display:block; color: var(--text); font-size: 0.78rem; }
+  .rail-cap { font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-faint); }
+  @media (max-width: 720px) {
+    .rail { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .rail::before { display: none; }
+  }
+
+  /* ---------- Phase / journey ---------- */
+  .phase { padding-top: 30px; border-top: 1px solid var(--line-2); margin-top: 30px; }
+  .phase-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+  .phase-idx {
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--bg); background: var(--pc); padding: 5px 10px; border-radius: 6px; font-weight: 600;
+  }
+  .phase-title { font-size: clamp(1.15rem, 2.6vw, 1.5rem); font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .phase-tagline { color: var(--text-dim); font-size: 0.92rem; margin: 0; }
+  .phase-count { margin-left: auto; font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card {
+    position: relative; background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 13px; padding: 18px 18px 16px; overflow: hidden;
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), border-color .25s, box-shadow .25s;
+    opacity: 0; transform: translateY(16px);
+  }
+  .card.in { opacity: 1; transform: none; }
+  .card::before { content:""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--pc); opacity: .85; }
+  .card:hover { transform: translateY(-3px); border-color: color-mix(in oklab, var(--pc), var(--line) 45%); box-shadow: var(--shadow); }
+  .card.done { border-color: color-mix(in oklab, var(--good), var(--line) 55%); }
+  .card.done::before { background: var(--good); }
+  .card-top { display: flex; align-items: flex-start; gap: 12px; }
+  .card-num { font-family: var(--font-mono); font-size: 1.85rem; font-weight: 700; line-height: 1; color: var(--pc); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .card h3 { font-size: 1.02rem; margin: 2px 0 0; letter-spacing: -0.01em; line-height: 1.25; flex: 1; }
+  .card .learn { color: var(--text-dim); font-size: 0.9rem; margin: 12px 0 0; }
+  .app {
+    margin-top: 13px; padding: 10px 12px; border-radius: 9px;
+    background: color-mix(in oklab, var(--pc), transparent 90%);
+    border: 1px solid color-mix(in oklab, var(--pc), transparent 78%);
+    font-size: 0.85rem;
+  }
+  .app .app-l { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--pc); display: block; margin-bottom: 3px; }
+  .card-foot { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .formula {
+    font-family: var(--font-mono); font-size: 0.82rem; color: var(--text);
+    background: var(--bg-3); border: 1px solid var(--line-2); border-radius: 7px; padding: 4px 9px;
+    white-space: nowrap; overflow-x: auto; max-width: 100%;
+  }
+  .prereq { font-family: var(--font-mono); font-size: 0.66rem; color: var(--text-faint); letter-spacing: .04em; }
+  .done-btn {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: .08em; text-transform: uppercase;
+    background: transparent; border: 1px solid var(--line); color: var(--text-faint);
+    border-radius: 7px; padding: 5px 9px; cursor: pointer; transition: all .2s;
+  }
+  .done-btn:hover { color: var(--text); border-color: var(--text-faint); }
+  .card.done .done-btn { color: var(--good); border-color: color-mix(in oklab, var(--good), transparent 55%); background: color-mix(in oklab, var(--good), transparent 90%); }
+  .done-btn .box { width: 12px; height: 12px; border-radius: 3px; border: 1.5px solid currentColor; display: grid; place-items: center; }
+  .card.done .done-btn .box { background: var(--good); border-color: var(--good); }
+  .card.done .done-btn .box::after { content: "✓"; color: var(--bg); font-size: 9px; line-height: 1; }
+
+  /* ---------- Vision / footer ---------- */
+  .vision { background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--bg-2), transparent 40%)); border-top: 1px solid var(--line-2); }
+  .vision-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: start; }
+  @media (max-width: 760px) { .vision-grid { grid-template-columns: 1fr; gap: 26px; } }
+  .roadmap { display: flex; flex-direction: column; gap: 10px; }
+  .rm-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-2); }
+  .rm-item.live { border-color: color-mix(in oklab, var(--trace-1), var(--line) 40%); }
+  .rm-badge { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: .12em; text-transform: uppercase; padding: 3px 7px; border-radius: 5px; white-space: nowrap; }
+  .rm-badge.on { background: var(--trace-1); color: var(--bg); }
+  .rm-badge.soon { background: var(--line); color: var(--text-dim); }
+  .rm-item .rm-t { font-weight: 600; font-size: 0.95rem; }
+  .rm-item .rm-d { font-size: 0.8rem; color: var(--text-faint); }
+  footer.foot { padding: 34px 0 56px; color: var(--text-faint); font-size: 0.82rem; }
+  footer.foot .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
+  footer.foot .mono { font-family: var(--font-mono); letter-spacing: .04em; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card { opacity: 1; transform: none; transition: none; }
+    * { scroll-behavior: auto; }
+  }
+</style>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <div>ENGENHARIA·HUB<small>análise de circuitos</small></div>
+    </div>
+    <div class="prog">
+      <span class="prog-num" id="progText">0 / 16</span>
+      <div class="prog-track" aria-hidden="true"><div class="prog-fill" id="progFill"></div></div>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Alternar tema">tema</button>
+    </div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="scope">
+      <canvas id="scopeCanvas" aria-hidden="true"></canvas>
+      <div class="scope-overlay">
+        <div class="scope-top">
+          <span class="scope-badge"><span class="ch-tag">CH1</span> · corrente · CC → CA</span>
+          <span class="scope-badge"><span class="ch-tag amber">CH2</span> · tensão · resposta</span>
+        </div>
+        <div class="scope-readout">t/div 2ms &nbsp;·&nbsp; v/div 500mV &nbsp;·&nbsp; trig ↑ &nbsp;·&nbsp; run</div>
+      </div>
+    </div>
+
+    <p class="eyebrow" style="margin-top:34px">Módulo 01 — a fundação de toda a eletrônica</p>
+    <h1 class="title">Todo circuito conta uma história. <span class="g">Aprenda a lê-la.</span></h1>
+    <p class="lede">
+      Dezesseis capítulos que te levam da carga elétrica ao amplificador operacional — os mesmos
+      fundamentos por trás do seu celular, do carro, da rede de energia e de cada sensor do planeta.
+      Uma trilha visual, com o "para que serve" de cada conceito e o rigor da teoria clássica.
+    </p>
+
+    <div class="hero-meta">
+      <div class="stat"><span class="n">16</span><span class="l">capítulos</span></div>
+      <div class="stat"><span class="n">7</span><span class="l">fases da trilha</span></div>
+      <div class="stat"><span class="n">70+</span><span class="l">tópicos</span></div>
+      <div class="stat"><span class="n">1</span><span class="l">base que sustenta tudo</span></div>
+    </div>
+
+    <p class="src-note">
+      Conteúdo baseado na <em>Sebenta Multimédia de Análise de Circuitos Eléctricos</em> do Prof. Victor Dias (IST),
+      material de referência em Teoria de Circuitos — <a href="https://www.ufrgs.br/eng04030/Aulas/teoria/capa.htm" target="_blank" rel="noopener">fonte original</a>.
+    </p>
+  </div>
+</header>
+
+<section class="block">
+  <div class="wrap">
+    <p class="eyebrow">o mapa</p>
+    <div class="sec-head"><h2>A trilha em 7 fases</h2></div>
+    <p class="sec-sub">
+      Circuitos se aprende em ordem: cada fase abre a porta da seguinte. A cor esquenta conforme os
+      circuitos ganham energia e dinâmica — do estático (corrente contínua) ao ativo (amplificação).
+      Você não precisa dominar tudo de uma vez; precisa dominar na sequência certa.
+    </p>
+    <div class="rail" id="rail"></div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:0">
+  <div class="wrap" id="journey"></div>
+</section>
+
+<section class="block vision">
+  <div class="wrap">
+    <div class="vision-grid">
+      <div>
+        <p class="eyebrow">para onde isso cresce</p>
+        <div class="sec-head"><h2>Um hub de engenharia — começando pelos circuitos</h2></div>
+        <p class="sec-sub" style="margin-bottom:18px">
+          Este módulo é a primeira pedra. A ideia é transformar o melhor material de estudo de cada
+          disciplina em uma trilha viva — com aplicações reais, mapa de pré-requisitos e a sensação de
+          progresso que um PDF nunca dá. Circuitos hoje; amanhã, o resto da engenharia.
+        </p>
+        <p class="sec-sub">
+          <strong>Como usar:</strong> percorra as fases em ordem, leia o "onde isso vive" de cada
+          capítulo e marque <span class="mono" style="font-family:var(--font-mono);color:var(--good)">✓ concluí</span>
+          ao dominar o tema. Sua trilha fica salva neste navegador.
+        </p>
+      </div>
+      <div class="roadmap">
+        <div class="rm-item live">
+          <span class="rm-badge on">no ar</span>
+          <div><div class="rm-t">Análise de Circuitos Elétricos</div><div class="rm-d">16 capítulos · trilha completa</div></div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-badge soon">em breve</span>
+          <div><div class="rm-t">Eletrônica Analógica & Digital</div><div class="rm-d">o próximo passo natural</div></div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-badge soon">em breve</span>
+          <div><div class="rm-t">Sistemas de Potência & Máquinas</div><div class="rm-d">da bancada à rede elétrica</div></div>
+        </div>
+        <div class="rm-item">
+          <span class="rm-badge soon">em breve</span>
+          <div><div class="rm-t">Sinais, Controle & mais engenharias</div><div class="rm-d">o hub se expande</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Engenharia·Hub — feito para quem está começando.</span>
+    <span class="mono">módulo 01 / circuitos · v1</span>
+  </div>
+</footer>
+
+<script is:inline>
+(function () {
+  "use strict";
+
+  /* ---------------- Data ---------------- */
+  var PHASES = [
+    { pc: "--p1", idx: "Fase 1", title: "Fundamentos", tag: "O vocabulário da eletricidade.", caps: [1, 2] },
+    { pc: "--p2", idx: "Fase 2", title: "Elementos Resistivos", tag: "Onde a corrente encontra resistência.", caps: [3, 4] },
+    { pc: "--p3", idx: "Fase 3", title: "Métodos & Teoremas", tag: "As ferramentas para resolver qualquer circuito.", caps: [5, 6] },
+    { pc: "--p4", idx: "Fase 4", title: "Armazenadores de Energia", tag: "Componentes que guardam carga e campo.", caps: [7, 8] },
+    { pc: "--p5", idx: "Fase 5", title: "Regime Transitório", tag: "O que acontece no instante em que se liga.", caps: [9, 10] },
+    { pc: "--p6", idx: "Fase 6", title: "Regime CA & Frequência", tag: "Circuitos que respiram no tempo.", caps: [11, 12, 13] },
+    { pc: "--p7", idx: "Fase 7", title: "Circuitos Ativos", tag: "Onde o sinal ganha força.", caps: [14, 15, 16] }
+  ];
+
+  var CH = {
+    1:  { t: "Grandezas Elétricas", learn: "Carga, tensão, corrente, potência e os instrumentos que medem tudo isso.", app: "É por que sua conta de luz vem em kWh e o carregador esquenta.", f: "P = V · I", req: null },
+    2:  { t: "Componentes Fundamentais", learn: "O que é um circuito e a diferença entre componentes lineares e não-lineares.", app: "Por que um resistor é 'previsível' e um LED não.", f: "v = f(i)", req: "Cap 1" },
+    3:  { t: "Resistência Elétrica", learn: "Lei de Ohm, Lei de Joule, código de cores, sensores e efeitos da temperatura.", app: "O chuveiro elétrico, o sensor de temperatura do motor, o aquecedor.", f: "V = R·I  ·  P = R·I²", req: "Cap 2" },
+    4:  { t: "Leis de Kirchhoff", learn: "As duas leis que governam qualquer nó e qualquer malha; divisores e fontes.", app: "Como o volume do fone divide a tensão num potenciômetro.", f: "ΣI = 0  ·  ΣV = 0", req: "Cap 3" },
+    5:  { t: "Métodos Sistemáticos", learn: "Análise nodal e de malhas: um procedimento que resolve o circuito mais complexo.", app: "É exatamente o que o SPICE faz para simular um chip inteiro.", f: "G · V = I", req: "Cap 4" },
+    6:  { t: "Teoremas dos Circuitos", learn: "Superposição, Thévenin, Norton, máxima transferência de potência, Millman e Miller.", app: "Modelar uma bateria e casar impedância em áudio e antenas.", f: "Pₘₐₓ = Vₜₕ² / 4Rₜₕ", req: "Cap 5" },
+    7:  { t: "Condensador & Capacidade", learn: "Como um capacitor armazena carga, se associa e forma divisores.", app: "O flash da câmera, a tela touch capacitiva, a memória.", f: "Q = C·V  ·  i = C·dv/dt", req: "Cap 4" },
+    8:  { t: "Bobina & Indutância", learn: "Campo magnético, indutância, associação de bobinas e sensores indutivos.", app: "Carregador sem fio, motores e o sensor de rotação da roda.", f: "v = L·di/dt", req: "Cap 7" },
+    9:  { t: "Circuitos RC e RL — 1ª ordem", learn: "Resposta natural e forçada; a constante de tempo que define a velocidade.", app: "Temporizadores, debounce de botão e filtros simples.", f: "τ = R·C", req: "Cap 8" },
+    10: { t: "Circuitos RLC — 2ª ordem", learn: "Topologias RLC, oscilação, amortecimento e ressonância.", app: "A sintonia do rádio e a campainha que 'toca' e decai.", f: "ω₀ = 1/√(LC)", req: "Cap 9" },
+    11: { t: "Impedância Elétrica", learn: "Fasores, notação complexa e as leis de Kirchhoff em regime senoidal; potência.", app: "A rede 127/220 V em 60 Hz e o fator de potência da sua casa.", f: "Z = R + jX  ·  V = Z·I", req: "Cap 10" },
+    12: { t: "Resposta em Frequência", learn: "Diagramas de Bode, ressonância, Laplace e os quatro tipos de filtro.", app: "O equalizador de áudio e a sintonia de Wi-Fi e rádio.", f: "f꜀ = 1 / 2πRC", req: "Cap 11" },
+    13: { t: "Bobinas Acopladas & Transformadores", learn: "Acoplamento magnético, transformador ideal, tipos e sensores.", app: "Como a rede leva a alta tensão até os 220 V da tomada.", f: "V₁/V₂ = N₁/N₂", req: "Cap 11" },
+    14: { t: "Diportos Elétricos", learn: "Modelar um bloco de 2 portas como caixa-preta e associá-los.", app: "Tratar um amplificador inteiro como um único bloco de projeto.", f: "[Z] · [Y] · [ABCD]", req: "Cap 12" },
+    15: { t: "Amplificador Operacional", learn: "AmpOp ideal, montagens inversora/não-inversora e circuitos reais.", app: "O coração de quase toda eletrônica analógica e de instrumentação.", f: "A𝓋 = − R𝒻 / R𝒾", req: "Cap 14" },
+    16: { t: "Transferidor de Tensão e Corrente", learn: "O transferidor ideal, montagens básicas e parâmetros reais.", app: "Espelhos e fontes de corrente dentro dos circuitos integrados.", f: "i₀ = A · i𝒾", req: "Cap 15" }
+  };
+
+  var STORE = "enghub_circuitos_v1";
+  var done = {};
+  try { done = JSON.parse(localStorage.getItem(STORE) || "{}") || {}; } catch (e) { done = {}; }
+
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(done)); } catch (e) {} }
+
+  /* ---------------- Render rail ---------------- */
+  var railEl = document.getElementById("rail");
+  PHASES.forEach(function (p, i) {
+    var node = document.createElement("div");
+    node.className = "rail-node";
+    node.style.setProperty("--pc", "var(" + p.pc + ")");
+    var range = p.caps.length > 1 ? ("Cap " + p.caps[0] + "–" + p.caps[p.caps.length - 1]) : ("Cap " + p.caps[0]);
+    node.innerHTML =
+      '<div class="rail-dot">' + (i + 1) + '</div>' +
+      '<div class="rail-label"><b>' + p.title + '</b>' + p.tag + '</div>' +
+      '<div class="rail-cap">' + range + '</div>';
+    railEl.appendChild(node);
+  });
+
+  /* ---------------- Render journey ---------------- */
+  var journeyEl = document.getElementById("journey");
+
+  function makeCard(n) {
+    var c = CH[n];
+    var el = document.createElement("article");
+    el.className = "card" + (done[n] ? " done" : "");
+    el.setAttribute("data-ch", n);
+    var num = (n < 10 ? "0" : "") + n;
+    el.innerHTML =
+      '<div class="card-top">' +
+        '<span class="card-num">' + num + '</span>' +
+        '<h3>' + c.t + '</h3>' +
+      '</div>' +
+      '<p class="learn">' + c.learn + '</p>' +
+      '<div class="app"><span class="app-l">onde isso vive</span>' + c.app + '</div>' +
+      '<div class="card-foot">' +
+        '<span class="formula">' + c.f + '</span>' +
+        (c.req ? '<span class="prereq">requer ' + c.req + '</span>' : '<span class="prereq">ponto de partida</span>') +
+        '<button class="done-btn" type="button"><span class="box" aria-hidden="true"></span><span class="lbl">' + (done[n] ? "concluído" : "concluí") + '</span></button>' +
+      '</div>';
+    var btn = el.querySelector(".done-btn");
+    btn.addEventListener("click", function () {
+      done[n] = !done[n];
+      if (!done[n]) delete done[n];
+      el.classList.toggle("done", !!done[n]);
+      el.querySelector(".lbl").textContent = done[n] ? "concluído" : "concluí";
+      save(); updateProgress();
+    });
+    return el;
+  }
+
+  PHASES.forEach(function (p) {
+    var sec = document.createElement("div");
+    sec.className = "phase";
+    sec.style.setProperty("--pc", "var(" + p.pc + ")");
+    var head = document.createElement("div");
+    head.className = "phase-head";
+    head.innerHTML =
+      '<span class="phase-idx">' + p.idx + '</span>' +
+      '<div><p class="phase-title">' + p.title + '</p><p class="phase-tagline">' + p.tag + '</p></div>' +
+      '<span class="phase-count" data-phase-count>' + '0/' + p.caps.length + '</span>';
+    sec.appendChild(head);
+    var grid = document.createElement("div");
+    grid.className = "cards";
+    p.caps.forEach(function (n) { grid.appendChild(makeCard(n)); });
+    sec.appendChild(grid);
+    journeyEl.appendChild(sec);
+    p._el = sec;
+  });
+
+  /* ---------------- Progress ---------------- */
+  var fill = document.getElementById("progFill");
+  var ptext = document.getElementById("progText");
+  function updateProgress() {
+    var total = 16, count = 0;
+    for (var k in done) { if (done[k]) count++; }
+    fill.style.width = (count / total * 100) + "%";
+    ptext.textContent = count + " / " + total;
+    PHASES.forEach(function (p) {
+      var c = 0; p.caps.forEach(function (n) { if (done[n]) c++; });
+      var badge = p._el.querySelector("[data-phase-count]");
+      badge.textContent = c + "/" + p.caps.length;
+      badge.style.color = (c === p.caps.length) ? "var(--good)" : "var(--text-faint)";
+    });
+  }
+  updateProgress();
+
+  /* ---------------- Scroll reveal ---------------- */
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e, i) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".card").forEach(function (c, i) {
+      c.style.transitionDelay = ((i % 3) * 60) + "ms";
+      io.observe(c);
+    });
+  } else {
+    document.querySelectorAll(".card").forEach(function (c) { c.classList.add("in"); });
+  }
+
+  /* ---------------- Theme toggle ---------------- */
+  var root = document.documentElement;
+  document.getElementById("themeBtn").addEventListener("click", function () {
+    var cur = root.getAttribute("data-theme");
+    if (!cur) {
+      var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      cur = dark ? "dark" : "light";
+    }
+    root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+  });
+
+  /* ---------------- Oscilloscope hero ---------------- */
+  var canvas = document.getElementById("scopeCanvas");
+  var ctx = canvas.getContext("2d");
+  var W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  function css(v) { return getComputedStyle(root).getPropertyValue(v).trim(); }
+
+  function resize() {
+    var r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawGrid() {
+    var g = css("--grid"), gs = css("--grid-strong");
+    var step = W / 20;
+    ctx.lineWidth = 1;
+    for (var x = 0; x <= W; x += step) {
+      ctx.strokeStyle = (Math.round(x / step) % 5 === 0) ? gs : g;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    var ystep = H / 8;
+    for (var y = 0; y <= H; y += ystep) {
+      ctx.strokeStyle = (Math.round(y / ystep) % 4 === 0) ? gs : g;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+  }
+
+  // signal that evolves left->right: DC (flat) -> step -> damped -> rising-frequency sine
+  function signal(u, t) {
+    // u in [0,1]
+    var y;
+    if (u < 0.16) {
+      y = 0.0;
+    } else if (u < 0.34) {
+      var s = (u - 0.16) / 0.18;
+      y = 0.55 * (1 - Math.exp(-s * 6));           // step / charge
+    } else if (u < 0.55) {
+      var d = (u - 0.34) / 0.21;
+      y = 0.6 * Math.exp(-d * 3) * Math.cos(d * 22 - t * 2); // damped oscillation
+    } else {
+      var f = (u - 0.55) / 0.45;
+      var freq = 6 + f * 22;
+      y = (0.32 + 0.28 * f) * Math.sin(f * freq - t * 2.4); // chirp
+    }
+    return y;
+  }
+
+  function trace(offset, colorVar, amp, phase, t) {
+    ctx.strokeStyle = css(colorVar);
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.shadowColor = css(colorVar);
+    ctx.shadowBlur = 9;
+    ctx.beginPath();
+    var mid = H * 0.5 + offset;
+    var N = Math.max(120, Math.floor(W));
+    for (var i = 0; i <= N; i++) {
+      var u = i / N;
+      var y = signal(u, t + phase) * amp;
+      var px = u * W;
+      var py = mid - y * (H * 0.34);
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  var start = null, raf = null;
+  function frame(ts) {
+    if (start === null) start = ts;
+    var t = (ts - start) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    drawGrid();
+    trace(6, "--trace-2", 0.9, 0.5, t * 0.7);   // CH2 amber, slightly behind
+    trace(-4, "--trace-1", 1.0, 0.0, t);        // CH1 cyan
+    raf = requestAnimationFrame(frame);
+  }
+
+  function drawStatic() {
+    ctx.clearRect(0, 0, W, H);
+    drawGrid();
+    trace(6, "--trace-2", 0.9, 0.5, 0.6);
+    trace(-4, "--trace-1", 1.0, 0.0, 0.0);
+  }
+
+  function boot() {
+    resize();
+    if (reduce) { drawStatic(); }
+    else { if (raf) cancelAnimationFrame(raf); start = null; raf = requestAnimationFrame(frame); }
+  }
+  boot();
+
+  var rt;
+  window.addEventListener("resize", function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { dpr = Math.min(window.devicePixelRatio || 1, 2); boot(); }, 160);
+  });
+})();
+</script>
+</Base>
