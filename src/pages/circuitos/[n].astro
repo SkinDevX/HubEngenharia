@@ -22,7 +22,7 @@ const passNeeded = c.ready ? Math.ceil(c.lesson.quiz.length * 0.75) : 0;
 >
   <div class="topbar">
     <div class="topbar-inner">
-      <a class="back-link" href="/">← <span>trilha de circuitos</span></a>
+      <a class="back-link" href="/circuitos">← <span>trilha de circuitos</span></a>
       <div class="right">
         <span class="prog-num" id="progText">0 / {TOTAL}</span>
         <div class="prog-track" aria-hidden="true"><div class="prog-fill" id="progFill"></div></div>
@@ -161,7 +161,7 @@ const passNeeded = c.ready ? Math.ceil(c.lesson.quiz.length * 0.75) : 0;
         {prev
           ? <a class="l-nav-item prev" href={`/circuitos/${prev.n}`}><span class="l-nav-dir">← anterior</span><span class="l-nav-title">{String(prev.n).padStart(2,'0')} · {prev.title}</span></a>
           : <span class="l-nav-item empty"></span>}
-        <a class="l-nav-item hub" href="/"><span class="l-nav-dir">trilha</span><span class="l-nav-title">Ver todas as fases</span></a>
+        <a class="l-nav-item hub" href="/circuitos"><span class="l-nav-dir">trilha</span><span class="l-nav-title">Ver todas as fases</span></a>
         {next
           ? <a class="l-nav-item next" href={`/circuitos/${next.n}`}><span class="l-nav-dir">próximo →</span><span class="l-nav-title">{String(next.n).padStart(2,'0')} · {next.title}</span></a>
           : <span class="l-nav-item empty"></span>}
