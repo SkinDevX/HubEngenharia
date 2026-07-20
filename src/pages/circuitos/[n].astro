@@ -1,0 +1,375 @@
+---
+import Base from '../../layouts/Base.astro';
+import { CHAPTERS, TOTAL } from '../../data/circuitos.js';
+
+export function getStaticPaths() {
+  return Object.keys(CHAPTERS).map((n) => ({ params: { n } }));
+}
+
+const { n } = Astro.params;
+const num = Number(n);
+const c = CHAPTERS[num];
+const prev = num > 1 ? CHAPTERS[num - 1] : null;
+const next = num < TOTAL ? CHAPTERS[num + 1] : null;
+const nn = String(num).padStart(2, '0');
+const pc = `var(--p${c.phase})`;
+const passNeeded = c.ready ? Math.ceil(c.lesson.quiz.length * 0.75) : 0;
+---
+
+<Base
+  title={`${nn} · ${c.title} — Engenharia·Hub`}
+  description={c.learn}
+>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="back-link" href="/">← <span>trilha de circuitos</span></a>
+      <div class="right">
+        <span class="prog-num" id="progText">0 / {TOTAL}</span>
+        <div class="prog-track" aria-hidden="true"><div class="prog-fill" id="progFill"></div></div>
+        <button class="theme-btn" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro">tema</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="lesson" style={`--pc: ${pc}`}>
+    <div class="wrap">
+      <!-- Hero -->
+      <div class="l-hero">
+        <div class="l-eyebrow">
+          <span class="l-phase">Fase {c.phase}</span>
+          <span>Capítulo {num} de {TOTAL}</span>
+          {c.req && <span class="l-req">requer {c.req}</span>}
+        </div>
+        <div class="l-title-row">
+          <span class="l-num">{nn}</span>
+          <h1>{c.title}</h1>
+        </div>
+        <p class="l-learn">{c.learn}</p>
+        <div class="l-chips">
+          <span class="l-formula">{c.f}</span>
+          <span class="l-app"><b>onde isso vive:</b> {c.app}</span>
+        </div>
+      </div>
+
+      {c.ready ? (
+        <>
+          <!-- Teoria -->
+          <section class="l-block">
+            <p class="eyebrow">o ensinamento</p>
+            <p class="l-lead">{c.lesson.lead}</p>
+            <div class="l-sections">
+              {c.lesson.sections.map((s) => (
+                <div class="l-sec">
+                  <h3>{s.h}</h3>
+                  <p set:html={s.body}></p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <!-- Ilustração interativa -->
+          <section class="l-block">
+            <p class="eyebrow">a ilustração — mexa e observe</p>
+            <h2 class="l-h2">A potência é a tensão vezes a corrente</h2>
+            <p class="sec-sub">Aumente a tensão ou a corrente e veja a lâmpada acender — e o quanto isso pesa na conta de luz em uma hora ligada.</p>
+
+            <div class="illus">
+              <div class="illus-stage">
+                <div class="bulb" id="bulb"><span class="fil"></span></div>
+                <div class="bulb-cap">P = V · I</div>
+              </div>
+              <div class="illus-controls">
+                <div class="ctrl">
+                  <label for="vSlider">Tensão <span class="mono"><b id="vVal">12</b> V</span></label>
+                  <input type="range" id="vSlider" min="1" max="240" step="1" value="12" />
+                </div>
+                <div class="ctrl">
+                  <label for="iSlider">Corrente <span class="mono"><b id="iVal">2,0</b> A</span></label>
+                  <input type="range" id="iSlider" min="0.01" max="30" step="0.01" value="2" />
+                </div>
+                <div class="presets" id="presets">
+                  <button type="button" data-v="5"   data-i="2">Carregador</button>
+                  <button type="button" data-v="127" data-i="0.08">Lâmpada LED</button>
+                  <button type="button" data-v="19"  data-i="3.4">Notebook</button>
+                  <button type="button" data-v="220" data-i="25">Chuveiro</button>
+                </div>
+                <div class="readout">
+                  <div class="ro"><span class="ro-l">Potência</span><span class="ro-n" id="pVal">24 W</span></div>
+                  <div class="ro"><span class="ro-l">Energia · 1 h</span><span class="ro-n" id="eVal">0,024 kWh</span></div>
+                  <div class="ro"><span class="ro-l">Custo · 1 h</span><span class="ro-n" id="cVal">R$ 0,02</span></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Desafio -->
+          <section class="l-block">
+            <p class="eyebrow">o desafio</p>
+            <h2 class="l-h2">Prove que dominou</h2>
+            <p class="sec-sub">Acerte pelo menos {passNeeded} das {c.lesson.quiz.length} para marcar o capítulo como concluído.</p>
+
+            <form class="quiz" id="quiz">
+              {c.lesson.quiz.map((q, qi) => (
+                <fieldset class="q" data-answer={q.answer}>
+                  <legend><span class="q-num">{qi + 1}</span> {q.q}</legend>
+                  <div class="opts">
+                    {q.options.map((opt, oi) => (
+                      <label class="opt">
+                        <input type="radio" name={`q${qi}`} value={oi} />
+                        <span class="opt-mark" aria-hidden="true"></span>
+                        <span class="opt-txt">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p class="q-explain" set:html={q.explain}></p>
+                </fieldset>
+              ))}
+              <div class="quiz-foot">
+                <button type="submit" class="btn-check" id="checkBtn">Verificar respostas</button>
+                <span class="quiz-result" id="quizResult" role="status"></span>
+              </div>
+            </form>
+          </section>
+        </>
+      ) : (
+        <!-- Prévia (aula em construção) -->
+        <section class="l-block">
+          <div class="soon-card">
+            <p class="eyebrow" style="color:var(--pc)">aula interativa em construção</p>
+            <h2 class="l-h2">O essencial deste capítulo</h2>
+            <p class="sec-sub" style="max-width:60ch">
+              A aula completa — teoria, ilustração e desafio — está a caminho. Enquanto isso, aqui está
+              o mapa do que este capítulo cobre, e o link direto para o material original.
+            </p>
+            <ul class="soon-list">
+              <li><b>O que você vai dominar:</b> {c.learn}</li>
+              <li><b>Onde isso vive:</b> {c.app}</li>
+              <li><b>Fórmula-chave:</b> <span class="mono">{c.f}</span></li>
+              {c.req && <li><b>Pré-requisito:</b> {c.req}</li>}
+            </ul>
+            <div class="soon-actions">
+              <a class="btn-ghost" href={c.src} target="_blank" rel="noopener">Ler na sebenta original ↗</a>
+              <button type="button" class="btn-check" id="markBtn">Marcar como estudado</button>
+              <span class="quiz-result" id="quizResult" role="status"></span>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <!-- Navegação -->
+      <nav class="l-nav">
+        {prev
+          ? <a class="l-nav-item prev" href={`/circuitos/${prev.n}`}><span class="l-nav-dir">← anterior</span><span class="l-nav-title">{String(prev.n).padStart(2,'0')} · {prev.title}</span></a>
+          : <span class="l-nav-item empty"></span>}
+        <a class="l-nav-item hub" href="/"><span class="l-nav-dir">trilha</span><span class="l-nav-title">Ver todas as fases</span></a>
+        {next
+          ? <a class="l-nav-item next" href={`/circuitos/${next.n}`}><span class="l-nav-dir">próximo →</span><span class="l-nav-title">{String(next.n).padStart(2,'0')} · {next.title}</span></a>
+          : <span class="l-nav-item empty"></span>}
+      </nav>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <span>Engenharia·Hub — feito para quem está começando.</span>
+      <span class="mono">módulo 01 / cap {nn} · v1</span>
+    </div>
+  </footer>
+
+  <style is:global>
+    .lesson { padding: clamp(28px, 5vw, 52px) 0 20px; }
+    .l-hero { padding-bottom: 26px; border-bottom: 1px solid var(--line-2); }
+    .l-eyebrow { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
+    .l-phase { color: var(--bg); background: var(--pc); padding: 4px 9px; border-radius: 6px; font-weight: 600; }
+    .l-req { border: 1px solid var(--line); padding: 3px 8px; border-radius: 6px; }
+    .l-title-row { display: flex; align-items: baseline; gap: 16px; margin-top: 18px; }
+    .l-num { font-family: var(--font-mono); font-size: clamp(2.4rem, 8vw, 4rem); font-weight: 700; line-height: 1; color: var(--pc); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+    .l-hero h1 { font-size: clamp(1.8rem, 5vw, 3rem); letter-spacing: -0.025em; margin: 0; line-height: 1.05; text-wrap: balance; }
+    .l-learn { font-size: clamp(1.05rem, 2.2vw, 1.28rem); color: var(--text-dim); margin: 18px 0 0; max-width: 60ch; text-wrap: pretty; }
+    .l-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; align-items: center; }
+    .l-formula { font-family: var(--font-mono); font-size: 0.95rem; color: var(--text); background: var(--bg-3); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; }
+    .l-app { font-size: 0.9rem; color: var(--text-dim); } .l-app b { color: var(--pc); font-weight: 600; }
+
+    .l-block { padding: clamp(32px, 5vw, 52px) 0; border-bottom: 1px solid var(--line-2); }
+    .l-block:last-of-type { border-bottom: 0; }
+    .l-lead { font-size: 1.1rem; color: var(--text); margin: 10px 0 0; max-width: 64ch; font-weight: 500; }
+    .l-h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); letter-spacing: -0.02em; margin: 4px 0 0; }
+    .sec-sub { color: var(--text-dim); max-width: 66ch; margin: 8px 0 0; }
+    .l-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 26px; margin-top: 24px; }
+    @media (max-width: 680px) { .l-sections { grid-template-columns: 1fr; } }
+    .l-sec { padding: 18px 20px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; }
+    .l-sec h3 { margin: 0 0 8px; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--pc); }
+    .l-sec p { margin: 0; color: var(--text-dim); font-size: 0.95rem; }
+    .l-sec b { color: var(--text); font-weight: 600; }
+    .l-sec i { color: var(--text); font-style: italic; }
+
+    /* illustration */
+    .illus { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 24px; margin-top: 24px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+    @media (max-width: 680px) { .illus { grid-template-columns: 1fr; } }
+    .illus-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 220px; border-radius: 12px; background: radial-gradient(circle at 50% 40%, color-mix(in oklab, var(--bg-3), transparent 20%), var(--bg-3)); border: 1px solid var(--line-2); }
+    .bulb { width: 108px; height: 108px; border-radius: 50%; background: radial-gradient(circle at 50% 45%, #fff 0%, var(--trace-2) 45%, color-mix(in oklab, var(--trace-2), #000 40%) 100%); display: grid; place-items: center; transition: box-shadow .12s linear, opacity .12s linear, filter .12s linear; position: relative; }
+    .bulb .fil { width: 34px; height: 22px; border: 2px solid color-mix(in oklab, var(--trace-2), #000 30%); border-bottom: 0; border-radius: 18px 18px 0 0; opacity: .6; }
+    .bulb::after { content:""; position: absolute; bottom: -14px; width: 26px; height: 14px; background: var(--text-faint); border-radius: 0 0 4px 4px; opacity: .4; }
+    .bulb-cap { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-faint); letter-spacing: .08em; }
+    .illus-controls { display: flex; flex-direction: column; gap: 16px; justify-content: center; }
+    .ctrl label { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 7px; }
+    .ctrl label b { color: var(--text); font-size: 1rem; }
+    .ctrl input[type=range] { width: 100%; accent-color: var(--pc); height: 4px; }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; }
+    .presets button { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: .04em; background: var(--bg-3); border: 1px solid var(--line); color: var(--text-dim); border-radius: 99px; padding: 6px 12px; cursor: pointer; transition: all .18s; }
+    .presets button:hover { border-color: var(--pc); color: var(--text); }
+    .readout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+    .ro { background: var(--bg-3); border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px; }
+    .ro-l { display: block; font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint); }
+    .ro-n { display: block; font-family: var(--font-mono); font-size: 1.02rem; font-weight: 600; color: var(--text); margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+    /* quiz */
+    .quiz { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
+    .q { border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin: 0; background: var(--bg-2); }
+    .q legend { font-weight: 600; font-size: 1.02rem; padding: 0; display: flex; gap: 10px; align-items: baseline; }
+    .q-num { font-family: var(--font-mono); color: var(--pc); font-weight: 700; }
+    .opts { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+    .opt { display: flex; align-items: center; gap: 11px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; transition: border-color .15s, background .15s; }
+    .opt:hover { border-color: var(--text-faint); }
+    .opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .opt-mark { width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--text-faint); flex: none; transition: all .15s; }
+    .opt input:checked + .opt-mark { border-color: var(--pc); box-shadow: inset 0 0 0 4px var(--pc); }
+    .opt-txt { font-size: 0.94rem; }
+    .opt input:focus-visible + .opt-mark { outline: 2px solid var(--trace-1); outline-offset: 2px; }
+    .q.correct { border-color: color-mix(in oklab, var(--good), var(--line) 30%); }
+    .q.correct .opt.chosen { border-color: var(--good); background: color-mix(in oklab, var(--good), transparent 88%); }
+    .q.wrong .opt.chosen { border-color: var(--bad); background: color-mix(in oklab, var(--bad), transparent 88%); }
+    .q.wrong .opt.answer { border-color: var(--good); background: color-mix(in oklab, var(--good), transparent 90%); }
+    .q-explain { display: none; margin: 14px 0 0; font-size: 0.9rem; color: var(--text-dim); padding: 12px 14px; background: var(--bg-3); border-radius: 9px; border-left: 3px solid var(--pc); }
+    .q.checked .q-explain { display: block; }
+    .quiz-foot, .soon-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
+    .btn-check { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; background: var(--pc); color: var(--bg); border: 0; border-radius: 10px; padding: 12px 22px; cursor: pointer; transition: filter .18s, transform .18s; }
+    .btn-check:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-ghost { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; background: transparent; color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 11px 20px; text-decoration: none; transition: border-color .18s; }
+    .btn-ghost:hover { border-color: var(--pc); }
+    .quiz-result { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 600; }
+    .quiz-result.pass { color: var(--good); } .quiz-result.fail { color: var(--bad); }
+
+    .soon-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 16px; padding: 28px; }
+    .soon-list { margin: 20px 0 24px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .soon-list li { padding-left: 18px; position: relative; color: var(--text-dim); font-size: 0.96rem; }
+    .soon-list li::before { content:""; position: absolute; left: 0; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--pc); }
+    .soon-list b { color: var(--text); font-weight: 600; }
+
+    .l-nav { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 32px; }
+    @media (max-width: 680px) { .l-nav { grid-template-columns: 1fr; } }
+    .l-nav-item { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: inherit; background: var(--bg-2); transition: border-color .18s, transform .18s; }
+    a.l-nav-item:hover { border-color: var(--pc); transform: translateY(-2px); }
+    .l-nav-item.empty { background: transparent; border: 0; }
+    .l-nav-item.hub { text-align: center; align-items: center; }
+    .l-nav-item.next { text-align: right; align-items: flex-end; }
+    .l-nav-dir { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
+    .l-nav-title { font-weight: 600; font-size: 0.95rem; }
+
+    @media (prefers-reduced-motion: reduce) { .bulb { transition: none; } .btn-check:hover, a.l-nav-item:hover { transform: none; } }
+  </style>
+
+  <script is:inline define:vars={{ CH_N: num, READY: c.ready, PASS: passNeeded }}>
+    (function () {
+      "use strict";
+      var STORE = "enghub_circuitos_v1";
+      function load() { try { return JSON.parse(localStorage.getItem(STORE) || "{}") || {}; } catch (e) { return {}; } }
+      function save(d) { try { localStorage.setItem(STORE, JSON.stringify(d)); } catch (e) {} }
+      var done = load();
+
+      /* top progress reflects the whole trail */
+      function refreshTop() {
+        var d = load(), count = 0;
+        for (var k in d) { if (d[k]) count++; }
+        var fill = document.getElementById("progFill");
+        var pt = document.getElementById("progText");
+        if (fill) fill.style.width = (count / 16 * 100) + "%";
+        if (pt) pt.textContent = count + " / 16";
+      }
+      function markDone() { done = load(); done[CH_N] = true; save(done); refreshTop(); }
+      refreshTop();
+
+      /* ---- number formatting (pt-BR) ---- */
+      function br(x, dec) {
+        return x.toLocaleString("pt-BR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+      }
+
+      /* ---- interactive illustration (Cap 1) ---- */
+      var bulb = document.getElementById("bulb");
+      if (bulb) {
+        var vS = document.getElementById("vSlider"), iS = document.getElementById("iSlider");
+        var vV = document.getElementById("vVal"), iV = document.getElementById("iVal");
+        var pV = document.getElementById("pVal"), eV = document.getElementById("eVal"), cV = document.getElementById("cVal");
+        var RATE = 0.75; // R$/kWh
+        function update() {
+          var V = parseFloat(vS.value), I = parseFloat(iS.value);
+          var P = V * I;                        // watts
+          var kwh = P / 1000;                   // energia em 1 h
+          var cost = kwh * RATE;
+          vV.textContent = br(V, 0);
+          iV.textContent = br(I, 2);
+          pV.textContent = (P >= 1000 ? br(P / 1000, 2) + " kW" : br(P, P < 10 ? 1 : 0) + " W");
+          eV.textContent = br(kwh, 3) + " kWh";
+          cV.textContent = "R$ " + br(cost, 2);
+          // brightness on a log scale (0.02 W .. 7200 W)
+          var b = Math.max(0, Math.min(1, (Math.log10(P + 1)) / Math.log10(7200)));
+          bulb.style.filter = "brightness(" + (0.55 + b * 0.9).toFixed(2) + ")";
+          bulb.style.opacity = (0.45 + b * 0.55).toFixed(2);
+          var glow = Math.round(b * 70);
+          bulb.style.boxShadow = "0 0 " + glow + "px " + (glow / 2).toFixed(0) + "px color-mix(in oklab, var(--trace-2), transparent " + (100 - Math.round(b * 80)) + "%)";
+        }
+        vS.addEventListener("input", update);
+        iS.addEventListener("input", update);
+        document.getElementById("presets").addEventListener("click", function (e) {
+          var btn = e.target.closest("button"); if (!btn) return;
+          vS.value = btn.getAttribute("data-v"); iS.value = btn.getAttribute("data-i"); update();
+        });
+        update();
+      }
+
+      /* ---- quiz ---- */
+      var quiz = document.getElementById("quiz");
+      if (quiz && READY) {
+        quiz.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var qs = quiz.querySelectorAll(".q"), correct = 0, answered = 0;
+          qs.forEach(function (q) {
+            var ans = parseInt(q.getAttribute("data-answer"), 10);
+            var chosen = q.querySelector("input:checked");
+            q.classList.add("checked");
+            q.querySelectorAll(".opt").forEach(function (o) { o.classList.remove("chosen"); });
+            q.querySelectorAll(".opt")[ans].classList.add("answer");
+            if (chosen) {
+              answered++;
+              var ci = parseInt(chosen.value, 10);
+              chosen.closest(".opt").classList.add("chosen");
+              if (ci === ans) { correct++; q.classList.add("correct"); q.classList.remove("wrong"); }
+              else { q.classList.add("wrong"); q.classList.remove("correct"); }
+            } else { q.classList.add("wrong"); }
+          });
+          var res = document.getElementById("quizResult");
+          var pass = correct >= PASS;
+          res.textContent = correct + "/" + qs.length + (pass ? " — aprovado! capítulo concluído ✓" : " — quase! revise e tente de novo");
+          res.className = "quiz-result " + (pass ? "pass" : "fail");
+          if (pass) { markDone(); document.getElementById("checkBtn").textContent = "Refazer"; }
+          res.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
+
+      /* ---- manual mark (preview pages) ---- */
+      var markBtn = document.getElementById("markBtn");
+      if (markBtn) {
+        done = load();
+        if (done[CH_N]) { markBtn.textContent = "Concluído ✓"; }
+        markBtn.addEventListener("click", function () {
+          done = load();
+          if (done[CH_N]) { delete done[CH_N]; markBtn.textContent = "Marcar como estudado"; }
+          else { done[CH_N] = true; markBtn.textContent = "Concluído ✓"; }
+          save(done); refreshTop();
+          var res = document.getElementById("quizResult");
+          if (res) { res.textContent = done[CH_N] ? "salvo na sua trilha ✓" : "desmarcado"; res.className = "quiz-result " + (done[CH_N] ? "pass" : ""); }
+        });
+      }
+    })();
+  </script>
+</Base>
